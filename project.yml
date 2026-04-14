@@ -1,0 +1,39 @@
+name: Dictee
+options:
+  bundleIdPrefix: com.dictee
+  deploymentTarget:
+    iOS: "17.0"
+  xcodeVersion: "16.0"
+  createIntermediateGroups: true
+
+targets:
+  Dictee:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: Dictee
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.dictee.app
+        TARGETED_DEVICE_FAMILY: "1,2"
+        SWIFT_VERSION: "5.9"
+        INFOPLIST_FILE: Dictee/Info.plist
+        CURRENT_PROJECT_VERSION: 1
+        MARKETING_VERSION: "1.0"
+    info:
+      path: Dictee/Info.plist
+      properties:
+        NSCameraUsageDescription: "Take a photo of your word list to import it"
+        NSPhotoLibraryUsageDescription: "Choose a photo of your word list to import it"
+        UILaunchScreen:
+          UIColorName: ""
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        "UISupportedInterfaceOrientations~ipad":
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
