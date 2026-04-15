@@ -19,7 +19,6 @@ struct SessionView: View {
     @State private var typedAnswer = ""
     @State private var collectedAnswers: [(word: SessionWord, typed: String)] = []
     @State private var showResults = false
-    @FocusState private var inputFocused: Bool
 
     private var current: SessionWord? { shuffled[safe: currentIndex] }
     private var progress: Double {
@@ -88,16 +87,15 @@ struct SessionView: View {
 
                 // Input area
                 VStack(spacing: 14) {
-                    TextField("Type the word…", text: $typedAnswer)
-                        .font(.title2)
-                        .multilineTextAlignment(.center)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled(true)
-                        .padding()
-                        .background(Color(.secondarySystemGroupedBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: 14))
-                        .focused($inputFocused)
-                        .onSubmit(submitAnswer)
+                    DictationTextField(
+                        placeholder: "Type the word…",
+                        text: $typedAnswer,
+                        onSubmit: submitAnswer
+                    )
+                    .padding()
+                    .background(Color(.secondarySystemGroupedBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .frame(height: 56)
 
                     Button(action: submitAnswer) {
                         Text(currentIndex == shuffled.count - 1 ? "Finish" : "Next")
@@ -131,7 +129,6 @@ struct SessionView: View {
         collectedAnswers = []
         showResults = false
         speakCurrent(after: 0.5)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { inputFocused = true }
     }
 
     private func restart() {
