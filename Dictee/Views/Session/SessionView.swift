@@ -137,7 +137,8 @@ struct SessionView: View {
 
     private func submitAnswer() {
         guard let word = current else { return }
-        collectedAnswers.append((word: word, typed: typedAnswer))
+        let trimmed = typedAnswer.trimmingCharacters(in: .whitespaces)
+        collectedAnswers.append((word: word, typed: trimmed))
 
         if currentIndex + 1 < shuffled.count {
             currentIndex += 1
