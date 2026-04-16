@@ -20,70 +20,77 @@ A French dictation learning app for pupils, targeting iPhone and iPad. The teach
 
 ### 1. Home
 
-- Shows all saved word lists, each displaying:
+- Shows all saved word lists as a scrollable grid of cards, each displaying:
   - Thumbnail of the original photo
   - Name (auto-generated from import date, editable)
   - Word count
-  - Last practiced date
-- Buttons: **Add New List**, **Start Revisit** (disabled if Review Bank is empty)
+  - Last practiced date (relative, e.g. "2 hours ago")
+- Toolbar: **⚙ Settings** (top-left), **+ Add New List** (top-right)
+- When the Review Bank is non-empty, an orange **Revisit · N words** banner appears pinned at the bottom; it is hidden entirely when the bank is empty
+- Tapping a card immediately starts a Practice Session for that list
+- Long-pressing a card shows a context menu with **Details** and **Delete**
+- Empty state shown with a prompt to add the first list
 
 ---
 
 ### 2. Import Flow
 
 **Step 1 — Capture**
-- Tap "Add New List" → camera opens
+- Tap "+ Add New List" → camera opens
 - User photographs the paper word list
-- Option to use an existing photo from the library
+- Option to choose an existing photo from the library instead
 
 **Step 2 — Review & Edit**
-- App uses on-device OCR to extract French words
+- App uses on-device OCR (Vision framework, `fr-FR` locale) to extract words
+- Lines are split on commas as well as line breaks (French lists often pack multiple words per line)
 - Extracted words shown as an editable list
 - User can:
-  - Delete a word (OCR error)
-  - Edit a word (OCR error)
-  - Add a missing word manually
-- Tap **Save List**
+  - Edit a word inline (OCR error)
+  - Delete a word (swipe to delete)
+  - Reorder words (drag handle)
+  - Add a missing word manually via a text field at the bottom
+- Tap **Continue**
 
 **Step 3 — Naming**
-- Auto-name: "Liste du [date]"
-- User can rename before saving
+- Auto-name: "Liste du [date in French]" (e.g. "Liste du 14 avril 2026")
+- User can edit before saving
+- Tap **Save List**
 
 ---
 
 ### 3. Practice Session
 
-Triggered from Home by tapping a word list → **Start Practice**.
+Triggered from Home by tapping a word list card.
 
 **Session flow:**
 
 1. Words are shuffled randomly
 2. For each word, the app:
-   - Plays an audio pronunciation (text-to-speech, French locale)
-   - Shows a replay button
-   - Shows the word's category hint if available (e.g. *noun*, *verb*) — optional, toggled in settings
-   - Presents a text input field
-3. Pupil types the spelling and taps **Next** (or presses Return)
+   - Plays an audio pronunciation automatically (TTS, French locale)
+   - Shows a large speaker button to replay at any time
+   - Shows a progress bar and counter (e.g. "3 of 17")
+   - Presents a text input field (keyboard assistance fully disabled — see Design Decisions)
+3. Pupil types the spelling and taps **Next** (or **Finish** on the last word, or presses Return)
 4. The app records the answer silently — **no immediate right/wrong feedback**
 5. This continues until all words are exhausted
 
 **End of session — Results Screen:**
-- Score shown (e.g. "14 / 17 correct")
-- Two sections: **Correct** (green) and **Incorrect** (red)
-- Each incorrect entry shows: what the pupil typed → correct spelling
-- Incorrect words are automatically added to the Review Bank
-- If a word was already in the Review Bank and answered correctly here, it is **not** yet removed (only Revisit sessions trigger removal — see below)
+- Score shown prominently (e.g. "14 / 17") with a contextual label ("Perfect!", "Excellent", "Good job", etc.)
+- Two sections: **Correct ✓** (green) and **Needs work ✗** (red)
+- Each incorrect entry shows the correct word and "You wrote: [what the pupil typed]"
+- Incorrect words are automatically added to the Review Bank (miss count incremented if already present)
+- Words answered correctly here are **not** removed from the Review Bank (only Revisit sessions do that)
 - Buttons: **Practice Again**, **Back to Home**
 
 ---
 
 ### 4. Revisit Session
 
-Triggered from Home → **Start Revisit**.
+Triggered from the orange Revisit banner on Home.
 
-- Works identically to a Practice Session, but the word pool is drawn from the Review Bank (across all lists)
-- Session size: all Review Bank words, or capped at 20 if the bank is large (configurable in settings)
-- Words answered **correctly** in this session are removed from the Review Bank
+- Works identically to a Practice Session, but the word pool is drawn from the Review Bank (across all lists), sorted oldest-added first
+- Session size is capped (default 20, configurable in Settings)
+- Words answered **correctly** in this session are removed from the Review Bank immediately
 - Words answered **incorrectly** remain in the Review Bank
 - End screen shows the same Correct/Incorrect breakdown, plus: "X words removed from your review list"
 
@@ -91,11 +98,21 @@ Triggered from Home → **Start Revisit**.
 
 ### 5. Word List Detail
 
-Accessible by long-pressing a list on Home.
+Accessible via long-press context menu → **Details** on any list card.
 
-- View all words in the list
-- Each word shows a badge if it is currently in the Review Bank
-- Options: **Rename**, **Delete List**, **View Original Photo**
+- View all words in the list, sorted alphabetically
+- Each word shows an orange bookmark badge if it is currently in the Review Bank
+- Tap the photo thumbnail to view the original photo full-screen
+- Options: **Rename** (inline alert), **Delete List** (confirmation dialog)
+
+---
+
+### 6. Settings
+
+Accessible via the ⚙ toolbar button on Home.
+
+- **Max words per Revisit** — stepper, range 5–50 in steps of 5 (default: 20). Oldest-added words are shown first when the bank exceeds this cap.
+- **About** — app name and version number
 
 ---
 
@@ -103,11 +120,11 @@ Accessible by long-pressing a list on Home.
 
 | Entity | Fields |
 |---|---|
-| `WordList` | id, name, createdAt, photoThumbnail, words[] |
-| `Word` | id, listId, text, audioLocale |
-| `SessionResult` | id, listId, date, answers[] |
-| `Answer` | wordId, typed, correct |
-| `ReviewBank` | wordId, addedAt, missCount |
+| `WordList` | id, name, createdAt, photoData (JPEG), lastPracticedAt, words[] |
+| `Word` | id, text, list → WordList |
+| `ReviewBankEntry` | id, wordId, wordText (denormalized), addedAt, missCount |
+| `SessionResult` | id, listId, listName, date, isRevisit, answers[] |
+| `Answer` | id, wordId, wordText (denormalized), typed, correct, session → SessionResult |
 
 ---
 
@@ -117,9 +134,19 @@ Accessible by long-pressing a list on Home.
 
 **Revisit is the only gate for removing words from the Review Bank.** Getting a word right during a regular Practice Session does not remove it; the pupil must demonstrate recall specifically in a Revisit context.
 
-**OCR is editable before saving.** French accents (é, è, ê, ç, etc.) are error-prone in OCR; the edit step is a first-class part of the import flow, not an afterthought.
+**OCR is editable before saving.** French accents (é, è, ê, ç, etc.) are error-prone in OCR; the edit step (including reorder) is a first-class part of the import flow, not an afterthought.
 
-**Audio is TTS, French locale.** No network dependency; uses AVSpeechSynthesizer with `fr-FR` voice.
+**Audio is TTS, French locale.** No network dependency; uses `AVSpeechSynthesizer` with `fr-FR` voice at a slightly reduced rate for clarity.
+
+**Keyboard assistance is fully disabled during sessions.** Autocorrection, spell-check underlining, smart quotes, smart dashes, and the QuickType suggestion bar are all suppressed via a custom `UITextField` wrapper (`DictationTextField`). The pupil must recall and type every character entirely from memory.
+
+**Apostrophe variants are normalized before comparison.** iOS Smart Punctuation substitutes a curly right single quotation mark (U+2019) when the pupil types an apostrophe. The comparison folds U+2019, U+2018, and U+02BC to a plain straight apostrophe (U+0027) on both sides before comparing, so words like *l'enfance* are never incorrectly marked wrong due to apostrophe style.
+
+**Leading and trailing spaces are stripped before storage.** Pupils sometimes accidentally type spaces at the start or end of a word. The answer is trimmed at submission time so stray spaces never cause a correct answer to be marked wrong, and the results screen never shows confusing whitespace in "You wrote: …".
+
+**Comparison is case-insensitive and accent-sensitive.** "École" matches "école", but "ecole" does not match "école" — preserving accents is the whole point of a French dictation app.
+
+**ReviewBankEntry is denormalized.** Word text is stored directly on the entry (not as a foreign key to `Word`) so Review Bank entries survive if the original word list is deleted.
 
 ---
 
@@ -130,3 +157,4 @@ Accessible by long-pressing a list on Home.
 - Handwriting recognition (typed input only)
 - Images or illustrations for words
 - Translation display
+- Word category hints (noun, verb, etc.)
