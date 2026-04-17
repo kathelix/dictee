@@ -27,7 +27,6 @@ jobs:
 
       - name: Build (iOS Simulator, Debug)
         run: |
-          set -o pipefail
           xcodebuild build \
             -scheme Dictee \
             -sdk iphonesimulator \
@@ -38,4 +37,4 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
             ASSETCATALOG_COMPILER_OPTIMIZATION=nothing \
-            | xcpretty
+            COMPILER_INDEX_STORE_ENABLE=NO
