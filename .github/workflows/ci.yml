@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: macos-15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Build (iOS Simulator, Debug)
+        run: |
+          xcodebuild build \
+            -scheme Dictee \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -configuration Debug \
+            -derivedDataPath build \
+            ONLY_ACTIVE_ARCH=YES \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            ASSETCATALOG_COMPILER_OPTIMIZATION=nothing \
+            COMPILER_INDEX_STORE_ENABLE=NO
+
+      - name: Dump actool errors on failure
+        if: failure()
+        run: |
+          echo "=== xcodebuild activity log (errors only) ==="
+          find build -name "*.xcactivitylog" | sort -r | head -1 \
+            | xargs -I{} sh -c 'zcat "{}" 2>/dev/null || gunzip -c "{}" 2>/dev/null' \
+            | strings \
+            | grep -i "error\|actool\|CompileAsset" \
+            | head -60 \
+            || echo "(no activity log found)"
