@@ -96,10 +96,10 @@ bar button groups (removes the QuickType bar).
 
 | Model | Key fields |
 |---|---|
-| `WordList` | id, name, createdAt, photoData (JPEG), lastPracticedAt, words[] (cascade delete) |
+| `WordList` | id, name, createdAt, photoData (JPEG), lastPracticedAt, handwritingNeatness (Double?), words[] (cascade delete) |
 | `Word` | id, text, list (WordList?) |
 | `ReviewBankEntry` | id, wordId, wordText *(denormalized — survives list deletion)*, addedAt, missCount |
-| `SessionResult` | id, listId (UUID?), listName, date, isRevisit, answers[] |
+| `SessionResult` | id, listId (UUID?), listName, date, isRevisit, isPaperSession, answers[] |
 | `Answer` | id, wordId, wordText, typed, correct, session |
 
 `ReviewBankEntry.wordText` is denormalized intentionally — entries must survive

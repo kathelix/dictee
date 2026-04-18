@@ -27,7 +27,12 @@ struct WordListCard: View {
 
             Spacer(minLength: 0)
 
-            ScoreRing(percentage: lastScore)
+            HStack(spacing: 8) {
+                if let neatness = list.handwritingNeatness {
+                    NeatnessRing(percentage: neatness)
+                }
+                ScoreRing(percentage: lastScore)
+            }
         }
         .padding()
         .background(Color(.secondarySystemGroupedBackground))

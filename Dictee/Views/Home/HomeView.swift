@@ -13,10 +13,15 @@ struct HomeView: View {
     ) private var practiceSessions: [SessionResult]
 
     @State private var showImport = false
-    @State private var practiceList: WordList?
     @State private var showRevisit = false
     @State private var showSettings = false
     @State private var detailList: WordList?
+
+    // Session mode selection
+    @State private var pendingList: WordList?       // set on card tap; cleared after mode chosen
+    @State private var showSessionPicker = false
+    @State private var practiceList: WordList?      // triggers typed session sheet
+    @State private var paperList: WordList?         // triggers paper session sheet
 
     var body: some View {
         NavigationStack {
@@ -49,6 +54,19 @@ struct HomeView: View {
                     revisitBanner
                 }
             }
+            .confirmationDialog(
+                "How do you want to practise?",
+                isPresented: $showSessionPicker
+            ) {
+                Button("Type your answers") {
+                    if let list = pendingList { practiceList = list }
+                    pendingList = nil
+                }
+                Button("Write on paper") {
+                    if let list = pendingList { paperList = list }
+                    pendingList = nil
+                }
+            }
         }
         .sheet(isPresented: $showImport) {
             ImportFlowView()
@@ -61,6 +79,9 @@ struct HomeView: View {
                 isRevisit: false,
                 onComplete: { list.lastPracticedAt = Date() }
             )
+        }
+        .sheet(item: $paperList) { list in
+            PaperSessionView(list: list)
         }
         .sheet(isPresented: $showRevisit) {
             RevisitSessionView()
@@ -95,7 +116,10 @@ struct HomeView: View {
                 ForEach(lists) { list in
                     WordListCard(list: list, lastScore: lastScore(for: list))
                         .contentShape(RoundedRectangle(cornerRadius: 16))
-                        .onTapGesture { practiceList = list }
+                        .onTapGesture {
+                            pendingList = list
+                            showSessionPicker = true
+                        }
                         .contextMenu {
                             Button {
                                 detailList = list

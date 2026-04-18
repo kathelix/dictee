@@ -9,6 +9,10 @@ struct ResultsView: View {
     let title: String
     let listId: UUID?
     let isRevisit: Bool
+    /// True when answers came from a paper dictation session (written + photographed).
+    var isPaperSession: Bool = false
+    /// OCR-confidence-based neatness score from the paper photo (nil for typed sessions).
+    var handwritingNeatness: Double? = nil
     let onPracticeAgain: () -> Void
     let onDismiss: () -> Void
 
@@ -82,6 +86,22 @@ struct ResultsView: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
 
+                // Neatness indicator — paper sessions only
+                if isPaperSession, let neatness = handwritingNeatness {
+                    HStack(spacing: 10) {
+                        NeatnessRing(percentage: neatness)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Handwriting neatness")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            Text("\(Int((neatness * 100).rounded()))%")
+                                .font(.caption.weight(.bold))
+                                .foregroundStyle(neatnessColor(neatness))
+                        }
+                    }
+                    .padding(.top, 4)
+                }
+
                 if isRevisit {
                     let removed = correct.filter { $0.word.reviewEntryId != nil }.count
                     if removed > 0 {
@@ -113,10 +133,21 @@ struct ResultsView: View {
         return "Don't give up!"
     }
 
+    private func neatnessColor(_ p: Double) -> Color {
+        if p > 0.80 { return .green }
+        if p >= 0.50 { return .orange }
+        return .red
+    }
+
     // MARK: - Persistence
 
     private func persistResults() {
-        let result = SessionResult(listId: listId, listName: title, isRevisit: isRevisit)
+        let result = SessionResult(
+            listId: listId,
+            listName: title,
+            isRevisit: isRevisit,
+            isPaperSession: isPaperSession
+        )
         modelContext.insert(result)
 
         for item in answers {

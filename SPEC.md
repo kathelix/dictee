@@ -2,7 +2,7 @@
 
 ## Overview
 
-A French dictation learning app for pupils, targeting iPhone and iPad. The teacher gives a word list on paper; the pupil photographs it, then practices spelling through typed dictation sessions.
+A French dictation learning app for pupils, targeting iPhone and iPad. The teacher gives a word list on paper; the pupil photographs it, then practises spelling through typed or paper dictation sessions.
 
 ---
 
@@ -10,7 +10,9 @@ A French dictation learning app for pupils, targeting iPhone and iPad. The teach
 
 **Word List** — a set of French words imported from a single photo. A pupil can have many lists (e.g. one per week).
 
-**Session** — a run through all words in a list where the pupil types spellings from memory.
+**Session** — a run through all words in a list. Two modes:
+- **Typed** — pupil types each word on screen after hearing it.
+- **Paper** — pupil hears all words and writes them on paper, then photographs the page; the app grades the handwriting.
 
 **Review Bank** — a persistent collection of words the pupil has misspelled, drawn from across all lists.
 
@@ -23,10 +25,10 @@ A French dictation learning app for pupils, targeting iPhone and iPad. The teach
 - Shows all saved word lists as a scrollable grid of cards, each displaying:
   - Thumbnail of the original photo
   - Name (auto-generated from import date, editable)
-  - Word count, accompanied by a **score ring** (see below)
+  - Word count, accompanied by a **score ring** and, if a paper session has been completed, a **neatness ring** (see below)
   - Last practiced date (relative, e.g. "2 hours ago")
 
-**Score ring** — a small circular progress arc with the percentage printed in the centre, shown next to the word count, reflecting the score from the most recent Practice Session for that list:
+**Score ring** — a small circular progress arc with the percentage printed in the centre, reflecting the score from the most recent session (typed or paper) for that list:
 
 | Score | Ring colour |
 |---|---|
@@ -39,9 +41,21 @@ A French dictation learning app for pupils, targeting iPhone and iPad. The teach
 - The percentage number is displayed inside the ring (e.g. "87%")
 - Score is taken from the last **Practice Session** for that specific list; Revisit sessions do not affect it
 - A never-practised list shows a gray empty ring with no percentage label
+
+**Neatness ring** — a second circular ring shown only for lists that have had at least one **Paper Session** completed. Displays a pencil icon inside (instead of a percentage) and uses the same colour coding as the score ring. The fill and colour reflect the OCR confidence from the most recent paper session — a proxy for how legibly the pupil wrote:
+
+| OCR confidence | Ring colour |
+|---|---|
+| > 80% | Green (neat / legible) |
+| 50 – 80% | Amber |
+| < 50% | Red (hard to read) |
+
+- Intended for teachers to assess handwriting neatness alongside spelling correctness
+- Not shown for lists that have only been practised in typed mode
+
 - Toolbar: **⚙ Settings** (top-left), **+ Add New List** (top-right)
 - When the Review Bank is non-empty, an orange **Revisit · N words** banner appears pinned at the bottom; it is hidden entirely when the bank is empty
-- Tapping a card immediately starts a Practice Session for that list
+- Tapping a card shows a **mode picker** ("Type your answers" / "Write on paper") before starting a session
 - Long-pressing a card shows a context menu with **Details** and **Delete**
 - Empty state shown with a prompt to add the first list
 
@@ -72,9 +86,9 @@ A French dictation learning app for pupils, targeting iPhone and iPad. The teach
 
 ---
 
-### 3. Practice Session
+### 3. Practice Session (Typed)
 
-Triggered from Home by tapping a word list card.
+Triggered from Home → tap a word list card → **"Type your answers"**.
 
 **Session flow:**
 
@@ -98,11 +112,38 @@ Triggered from Home by tapping a word list card.
 
 ---
 
-### 4. Revisit Session
+### 4. Paper Dictation Session
+
+Triggered from Home → tap a word list card → **"Write on paper"**.
+
+The pupil hears every word, writes answers on a sheet of paper, then photographs it. The app grades the handwriting via OCR.
+
+**Session flow:**
+
+1. Words are shuffled randomly
+2. **Dictation phase:** For each word, the app:
+   - Plays an audio pronunciation automatically (TTS, French locale)
+   - Shows a large speaker button to replay at any time
+   - Shows a progress bar and counter (e.g. "3 of 17")
+   - **No text input** — the pupil writes on paper
+   - Pupil taps **Next Word** to advance, or **Done — Take Photo** on the last word
+3. **Capture phase:** App prompts the pupil to photograph their written answer sheet
+4. **Processing:** On-device OCR (Vision framework, handwriting mode — language correction disabled) recognises the words
+5. **Matching:** Recognised words are matched positionally to the dictation order (word 1 on the photo ↔ word 1 dictated, etc.)
+
+**End of session — Results Screen:**
+- Same Correct / Needs work layout as the typed session
+- Additionally shows a **neatness score** (OCR confidence as a legibility proxy) with a colour-coded neatness ring
+- Incorrect words are added to the Review Bank (same rules as typed sessions)
+- The neatness score is saved to the word list and shown as a neatness ring on the home card
+
+---
+
+### 5. Revisit Session
 
 Triggered from the orange Revisit banner on Home.
 
-- Works identically to a Practice Session, but the word pool is drawn from the Review Bank (across all lists), sorted oldest-added first
+- Works identically to a Typed Practice Session, but the word pool is drawn from the Review Bank (across all lists), sorted oldest-added first
 - Session size is capped (default 20, configurable in Settings)
 - Words answered **correctly** in this session are removed from the Review Bank immediately
 - Words answered **incorrectly** remain in the Review Bank
@@ -110,7 +151,7 @@ Triggered from the orange Revisit banner on Home.
 
 ---
 
-### 5. Word List Detail
+### 6. Word List Detail
 
 Accessible via long-press context menu → **Details** on any list card.
 
@@ -121,7 +162,7 @@ Accessible via long-press context menu → **Details** on any list card.
 
 ---
 
-### 6. Settings
+### 7. Settings
 
 Accessible via the ⚙ toolbar button on Home.
 
@@ -134,11 +175,13 @@ Accessible via the ⚙ toolbar button on Home.
 
 | Entity | Fields |
 |---|---|
-| `WordList` | id, name, createdAt, photoData (JPEG), lastPracticedAt, words[] |
+| `WordList` | id, name, createdAt, photoData (JPEG), lastPracticedAt, handwritingNeatness (Double?), words[] |
 | `Word` | id, text, list → WordList |
 | `ReviewBankEntry` | id, wordId, wordText (denormalized), addedAt, missCount |
-| `SessionResult` | id, listId, listName, date, isRevisit, answers[] |
+| `SessionResult` | id, listId, listName, date, isRevisit, isPaperSession, answers[] |
 | `Answer` | id, wordId, wordText (denormalized), typed, correct, session → SessionResult |
+
+`WordList.handwritingNeatness` is updated after each paper session (most recent value wins), analogous to `lastPracticedAt`. It is `nil` for lists that have only been practised in typed mode.
 
 ---
 
@@ -146,21 +189,25 @@ Accessible via the ⚙ toolbar button on Home.
 
 **No immediate feedback during a session.** The pupil must commit to their spelling without getting hints partway through — this mirrors a real dictation exam.
 
-**Revisit is the only gate for removing words from the Review Bank.** Getting a word right during a regular Practice Session does not remove it; the pupil must demonstrate recall specifically in a Revisit context.
+**Revisit is the only gate for removing words from the Review Bank.** Getting a word right during a regular Practice Session (typed or paper) does not remove it; the pupil must demonstrate recall specifically in a Revisit context.
 
 **OCR is editable before saving.** French accents (é, è, ê, ç, etc.) are error-prone in OCR; the edit step (including reorder) is a first-class part of the import flow, not an afterthought.
 
 **Audio is TTS, French locale.** No network dependency; uses `AVSpeechSynthesizer` with `fr-FR` voice at a slightly reduced rate for clarity.
 
-**Keyboard assistance is fully disabled during sessions.** Autocorrection, spell-check underlining, smart quotes, smart dashes, and the QuickType suggestion bar are all suppressed via a custom `UITextField` wrapper (`DictationTextField`). The pupil must recall and type every character entirely from memory.
+**Keyboard assistance is fully disabled during typed sessions.** Autocorrection, spell-check underlining, smart quotes, smart dashes, and the QuickType suggestion bar are all suppressed via a custom `UITextField` wrapper (`DictationTextField`). The pupil must recall and type every character entirely from memory.
 
 **Apostrophe variants are normalized before comparison.** iOS Smart Punctuation substitutes a curly right single quotation mark (U+2019) when the pupil types an apostrophe. The comparison folds U+2019, U+2018, and U+02BC to a plain straight apostrophe (U+0027) on both sides before comparing, so words like *l'enfance* are never incorrectly marked wrong due to apostrophe style.
 
-**Leading and trailing spaces are stripped before storage.** Pupils sometimes accidentally type spaces at the start or end of a word. The answer is trimmed at submission time so stray spaces never cause a correct answer to be marked wrong, and the results screen never shows confusing whitespace in "You wrote: …".
+**Leading and trailing spaces are stripped before storage.** Pupils sometimes accidentally type spaces at the start or end of a word. The answer is trimmed at submission time so stray spaces never cause a correct answer to be marked wrong.
 
 **Comparison is case-insensitive and accent-sensitive.** "École" matches "école", but "ecole" does not match "école" — preserving accents is the whole point of a French dictation app.
 
 **ReviewBankEntry is denormalized.** Word text is stored directly on the entry (not as a foreign key to `Word`) so Review Bank entries survive if the original word list is deleted.
+
+**Paper session matching is positional.** The pupil writes words in the order they are dictated (shuffled). OCR reads the photo top-to-bottom, which should match that order. Words are paired by position; if OCR reads fewer words than dictated, the missing tail entries are treated as blank (wrong).
+
+**Neatness score is OCR confidence.** After a paper session the mean recognition confidence across all detected text regions is saved as `WordList.handwritingNeatness`. High confidence indicates legible, well-formed letters; low confidence indicates messy or ambiguous writing. This is a practical proxy that requires no extra model or annotation.
 
 ---
 
@@ -168,7 +215,7 @@ Accessible via the ⚙ toolbar button on Home.
 
 - Teacher-side account or sharing
 - Syncing across devices
-- Handwriting recognition (typed input only)
+- Stroke-level neatness analysis (current neatness score is OCR-confidence-based)
 - Images or illustrations for words
 - Translation display
 - Word category hints (noun, verb, etc.)

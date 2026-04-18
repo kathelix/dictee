@@ -11,6 +11,7 @@
 		0D29D17F59A9EA7971D0FC14 /* SessionWord.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4EA0A8C76D5C6082D30F83C /* SessionWord.swift */; };
 		171FF9788B50A457F939316C /* WordListCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2C5F1F3266B8C11B7552D1C /* WordListCard.swift */; };
 		1DBC23ECDFF79463D9AAEF06 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FFE30FF920EE478E43516E /* HomeView.swift */; };
+		1EFDA0E645A28BA86E14FABF /* PaperSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49DF43F4A27E38EC1E3808F1 /* PaperSessionView.swift */; };
 		27F150DEB17C64472B5854FF /* WordList.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED08860A2D3DFEF16A2E33A9 /* WordList.swift */; };
 		2D5F82CE0065DEDEEEE5F191 /* Answer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7722B8088813368835434C02 /* Answer.swift */; };
 		3484C8F3B811D54C1C4F1584 /* RevisitSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0403C6CB36831CA8A6F1033 /* RevisitSessionView.swift */; };
@@ -24,6 +25,7 @@
 		9B7471C5E0E05574E96F166B /* SessionResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F3D80FF319FB4E124AA4159 /* SessionResult.swift */; };
 		9CF652EBE3A1ABD0228E59E9 /* Word.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C1241FB31451154161B3CC7 /* Word.swift */; };
 		ACB2FC6F777C978499290ED4 /* SessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92D1AF5BA5B49A82D4B6EE57 /* SessionView.swift */; };
+		B33A21FD337C57DD0E7EF985 /* NeatnessRing.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC2828BD4DC4D9631947D3C4 /* NeatnessRing.swift */; };
 		C2A635859BC1AE13FEAD8CD2 /* SpeechService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF7357A561CFC688DD3C5B1A /* SpeechService.swift */; };
 		CDD2799ECE6D8D06475B27FC /* DicteeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D4DBB193E5CCA6ACCF54264 /* DicteeApp.swift */; };
 		DBDADA03E0327E41EB9C287A /* ReviewBankEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BD65B115B7B736C431DC142 /* ReviewBankEntry.swift */; };
@@ -37,6 +39,7 @@
 		0F1F0C6635ED12D6526AB6AD /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		34635A204A57A740FB78894E /* ResultsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultsView.swift; sourceTree = "<group>"; };
 		36283553579B91B08CE6D87C /* String+Normalization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Normalization.swift"; sourceTree = "<group>"; };
+		49DF43F4A27E38EC1E3808F1 /* PaperSessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaperSessionView.swift; sourceTree = "<group>"; };
 		66F4E2A0A3D4694A525CFB25 /* DictationTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictationTextField.swift; sourceTree = "<group>"; };
 		6814ED42C59543D2E17618A9 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		7722B8088813368835434C02 /* Answer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Answer.swift; sourceTree = "<group>"; };
@@ -53,6 +56,7 @@
 		AC7224275A61915BDDF7C988 /* OCRReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRReviewView.swift; sourceTree = "<group>"; };
 		B5B79318408C96C69B24A985 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D3FFE30FF920EE478E43516E /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		DC2828BD4DC4D9631947D3C4 /* NeatnessRing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NeatnessRing.swift; sourceTree = "<group>"; };
 		DF7357A561CFC688DD3C5B1A /* SpeechService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechService.swift; sourceTree = "<group>"; };
 		E0403C6CB36831CA8A6F1033 /* RevisitSessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RevisitSessionView.swift; sourceTree = "<group>"; };
 		ED08860A2D3DFEF16A2E33A9 /* WordList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordList.swift; sourceTree = "<group>"; };
@@ -122,6 +126,7 @@
 			isa = PBXGroup;
 			children = (
 				66F4E2A0A3D4694A525CFB25 /* DictationTextField.swift */,
+				49DF43F4A27E38EC1E3808F1 /* PaperSessionView.swift */,
 				34635A204A57A740FB78894E /* ResultsView.swift */,
 				E0403C6CB36831CA8A6F1033 /* RevisitSessionView.swift */,
 				92D1AF5BA5B49A82D4B6EE57 /* SessionView.swift */,
@@ -174,6 +179,7 @@
 			isa = PBXGroup;
 			children = (
 				D3FFE30FF920EE478E43516E /* HomeView.swift */,
+				DC2828BD4DC4D9631947D3C4 /* NeatnessRing.swift */,
 				F7CD19E6CD49939F788633C1 /* ScoreRing.swift */,
 				A2C5F1F3266B8C11B7552D1C /* WordListCard.swift */,
 			);
@@ -256,8 +262,10 @@
 				CDD2799ECE6D8D06475B27FC /* DicteeApp.swift in Sources */,
 				1DBC23ECDFF79463D9AAEF06 /* HomeView.swift in Sources */,
 				EB5914FF0496558B77D391D3 /* ImportFlowView.swift in Sources */,
+				B33A21FD337C57DD0E7EF985 /* NeatnessRing.swift in Sources */,
 				632699888BB61F598F3E7F47 /* OCRReviewView.swift in Sources */,
 				98F7DDBE6503C70FCA199B0D /* OCRService.swift in Sources */,
+				1EFDA0E645A28BA86E14FABF /* PaperSessionView.swift in Sources */,
 				DE03A0B2B489B56062D9C066 /* ResultsView.swift in Sources */,
 				DBDADA03E0327E41EB9C287A /* ReviewBankEntry.swift in Sources */,
 				3484C8F3B811D54C1C4F1584 /* RevisitSessionView.swift in Sources */,

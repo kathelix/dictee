@@ -8,12 +8,16 @@ final class WordList {
     var createdAt: Date = Date()
     var photoData: Data?
     var lastPracticedAt: Date?
+    /// Mean OCR confidence from a handwriting import (0–1).
+    /// `nil` for lists imported as printed text.
+    var handwritingNeatness: Double? = nil
 
     @Relationship(deleteRule: .cascade, inverse: \Word.list)
     var words: [Word] = []
 
-    init(name: String, photoData: Data? = nil) {
+    init(name: String, photoData: Data? = nil, handwritingNeatness: Double? = nil) {
         self.name = name
         self.photoData = photoData
+        self.handwritingNeatness = handwritingNeatness
     }
 }

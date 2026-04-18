@@ -174,9 +174,9 @@ struct ImportFlowView: View {
     private func runOCR(on image: UIImage) {
         isProcessing = true
         Task {
-            let result = (try? await OCRService.recognizeText(in: image)) ?? []
+            let result = (try? await OCRService.recognizeText(in: image)) ?? OCRService.OCRResult(words: [], averageConfidence: 0)
             await MainActor.run {
-                words = result
+                words = result.words
                 isProcessing = false
             }
         }
