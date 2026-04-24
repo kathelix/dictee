@@ -64,7 +64,7 @@ A French dictation learning app for pupils, targeting iPhone and iPad. The teach
 ### 2. Import Flow
 
 **Step 1 — Capture**
-- Tap "+ Add New List" → camera opens
+- Tap "+ Add New List" → the capture screen shows the instructions and an **Example** card with a sample handwritten list (comma- and newline-separated entries, including multi-word phrases)
 - User photographs the paper word list
 - Option to choose an existing photo from the library instead
 

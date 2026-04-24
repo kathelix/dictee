@@ -63,12 +63,8 @@ struct ImportFlowView: View {
     // MARK: - Capture step
 
     private var captureStep: some View {
-        VStack(spacing: 32) {
+        VStack(spacing: 24) {
             Spacer()
-
-            Image(systemName: "camera.viewfinder")
-                .font(.system(size: 80))
-                .foregroundStyle(.blue)
 
             VStack(spacing: 8) {
                 Text("Photograph your word list")
@@ -78,6 +74,24 @@ struct ImportFlowView: View {
                     .foregroundStyle(.secondary)
             }
             .multilineTextAlignment(.center)
+
+            VStack(spacing: 8) {
+                Text("Example")
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.secondary)
+                    .textCase(.uppercase)
+
+                Image("ListFormatExample")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(maxWidth: 320, maxHeight: 180)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .strokeBorder(Color(.separator), lineWidth: 1)
+                    )
+            }
+            .padding(.horizontal)
 
             Spacer()
 
