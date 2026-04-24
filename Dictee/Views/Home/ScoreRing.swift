@@ -14,8 +14,8 @@ struct ScoreRing: View {
 
     private var ringColor: Color {
         guard let p = percentage else { return Color(.systemGray4) }
-        if p > 0.80 { return .green }
-        if p >= 0.50 { return .orange }
+        if p >= 0.90 { return .green }
+        if p >= 0.75 { return .orange }
         return .red
     }
 
@@ -52,8 +52,8 @@ struct ScoreRing: View {
     HStack(spacing: 20) {
         ScoreRing(percentage: nil)          // never practised
         ScoreRing(percentage: 0.40)         // red
-        ScoreRing(percentage: 0.65)         // amber
-        ScoreRing(percentage: 0.87)         // green
+        ScoreRing(percentage: 0.80)         // amber
+        ScoreRing(percentage: 0.92)         // green
         ScoreRing(percentage: 1.00)         // perfect
     }
     .padding()

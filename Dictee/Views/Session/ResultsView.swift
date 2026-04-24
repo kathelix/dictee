@@ -5,46 +5,46 @@ struct ResultsView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var reviewBank: [ReviewBankEntry]
 
-    let answers: [(word: SessionWord, typed: String)]
+    // Input from the session
+    let sessionAnswers: [(word: SessionWord, typed: String)]
     let title: String
     let listId: UUID?
     let isRevisit: Bool
-    /// True when answers came from a paper dictation session (written + photographed).
     var isPaperSession: Bool = false
-    /// OCR-confidence-based neatness score from the paper photo (nil for typed sessions).
     var handwritingNeatness: Double? = nil
     let onPracticeAgain: () -> Void
     let onDismiss: () -> Void
 
-    private var correct: [(word: SessionWord, typed: String)] {
-        answers.filter { isCorrect($0.typed, expected: $0.word.text) }
-    }
-    private var incorrect: [(word: SessionWord, typed: String)] {
-        answers.filter { !isCorrect($0.typed, expected: $0.word.text) }
-    }
+    // Populated once on first appear; drives all display
+    @State private var savedSession: SessionResult? = nil
+    @State private var removedFromBank: Int = 0
+
+    private var correctAnswers: [Answer] { savedSession?.answers.filter(\.correct) ?? [] }
+    private var incorrectAnswers: [Answer] { savedSession?.answers.filter { !$0.correct } ?? [] }
+    private var totalCount: Int { savedSession?.answers.count ?? 0 }
 
     var body: some View {
         NavigationStack {
             List {
                 scoreHeader
 
-                if !correct.isEmpty {
+                if !correctAnswers.isEmpty {
                     Section("Correct ✓") {
-                        ForEach(correct, id: \.word.id) { item in
-                            Text(item.word.text)
+                        ForEach(correctAnswers, id: \.id) { answer in
+                            Text(answer.wordText)
                                 .foregroundStyle(.green)
                         }
                     }
                 }
 
-                if !incorrect.isEmpty {
+                if !incorrectAnswers.isEmpty {
                     Section("Needs work ✗") {
-                        ForEach(incorrect, id: \.word.id) { item in
+                        ForEach(incorrectAnswers, id: \.id) { answer in
                             HStack {
                                 VStack(alignment: .leading, spacing: 2) {
-                                    Text(item.word.text)
+                                    Text(answer.wordText)
                                         .fontWeight(.semibold)
-                                    Text("You wrote: \(item.typed.isEmpty ? "—" : item.typed)")
+                                    Text("You wrote: \(answer.typed.isEmpty ? "—" : answer.typed)")
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
                                 }
@@ -69,7 +69,10 @@ struct ResultsView: View {
             }
             .navigationTitle("Results")
             .navigationBarTitleDisplayMode(.inline)
-            .onAppear(perform: persistResults)
+            .onAppear {
+                guard savedSession == nil else { return }
+                savedSession = persistResults()
+            }
         }
     }
 
@@ -78,7 +81,7 @@ struct ResultsView: View {
     private var scoreHeader: some View {
         Section {
             VStack(spacing: 8) {
-                Text("\(correct.count) / \(answers.count)")
+                Text("\(correctAnswers.count) / \(totalCount)")
                     .font(.system(size: 56, weight: .bold, design: .rounded))
                     .foregroundStyle(scoreColor)
 
@@ -86,7 +89,6 @@ struct ResultsView: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
 
-                // Neatness indicator — paper sessions only
                 if isPaperSession, let neatness = handwritingNeatness {
                     HStack(spacing: 10) {
                         NeatnessRing(percentage: neatness)
@@ -102,13 +104,10 @@ struct ResultsView: View {
                     .padding(.top, 4)
                 }
 
-                if isRevisit {
-                    let removed = correct.filter { $0.word.reviewEntryId != nil }.count
-                    if removed > 0 {
-                        Text("\(removed) word\(removed == 1 ? "" : "s") removed from your review list")
-                            .font(.caption)
-                            .foregroundStyle(.orange)
-                    }
+                if isRevisit && removedFromBank > 0 {
+                    Text("\(removedFromBank) word\(removedFromBank == 1 ? "" : "s") removed from your review list")
+                        .font(.caption)
+                        .foregroundStyle(.orange)
                 }
             }
             .frame(maxWidth: .infinity)
@@ -118,30 +117,31 @@ struct ResultsView: View {
     }
 
     private var scoreColor: Color {
-        let ratio = answers.isEmpty ? 0.0 : Double(correct.count) / Double(answers.count)
-        if ratio >= 0.9 { return .green }
-        if ratio >= 0.6 { return .orange }
+        let ratio = totalCount == 0 ? 0.0 : Double(correctAnswers.count) / Double(totalCount)
+        if ratio >= 0.90 { return .green }
+        if ratio >= 0.75 { return .orange }
         return .red
     }
 
     private var scoreLabel: String {
-        let ratio = answers.isEmpty ? 0.0 : Double(correct.count) / Double(answers.count)
+        let ratio = totalCount == 0 ? 0.0 : Double(correctAnswers.count) / Double(totalCount)
         if ratio == 1.0 { return "Perfect!" }
-        if ratio >= 0.9 { return "Excellent" }
-        if ratio >= 0.7 { return "Good job" }
-        if ratio >= 0.5 { return "Keep practising" }
+        if ratio >= 0.90 { return "Excellent" }
+        if ratio >= 0.70 { return "Good job" }
+        if ratio >= 0.50 { return "Keep practising" }
         return "Don't give up!"
     }
 
     private func neatnessColor(_ p: Double) -> Color {
-        if p > 0.80 { return .green }
-        if p >= 0.50 { return .orange }
+        if p >= 0.90 { return .green }
+        if p >= 0.75 { return .orange }
         return .red
     }
 
     // MARK: - Persistence
 
-    private func persistResults() {
+    @discardableResult
+    private func persistResults() -> SessionResult {
         let result = SessionResult(
             listId: listId,
             listName: title,
@@ -150,37 +150,37 @@ struct ResultsView: View {
         )
         modelContext.insert(result)
 
-        for item in answers {
+        // Build answers in sessionAnswers order so the zip below is safe
+        var builtAnswers: [Answer] = []
+        for item in sessionAnswers {
             let answer = Answer(wordId: item.word.id, wordText: item.word.text, typed: item.typed)
             answer.session = result
             result.answers.append(answer)
             modelContext.insert(answer)
+            builtAnswers.append(answer)
         }
 
         if isRevisit {
-            // Remove correctly answered words from the Review Bank
-            let toRemove = correct.compactMap(\.word.reviewEntryId)
-            for entryId in toRemove {
-                if let entry = reviewBank.first(where: { $0.id == entryId }) {
+            var removed = 0
+            for (item, answer) in zip(sessionAnswers, builtAnswers) where answer.correct {
+                if let reviewId = item.word.reviewEntryId,
+                   let entry = reviewBank.first(where: { $0.id == reviewId }) {
                     modelContext.delete(entry)
+                    removed += 1
                 }
             }
+            removedFromBank = removed
         } else {
-            // Add incorrectly answered words to the Review Bank (or increment miss count)
-            for item in incorrect {
-                if let existing = reviewBank.first(where: { $0.wordId == item.word.id }) {
+            for answer in builtAnswers where !answer.correct {
+                if let existing = reviewBank.first(where: { $0.wordId == answer.wordId }) {
                     existing.missCount += 1
                 } else {
-                    let entry = ReviewBankEntry(wordId: item.word.id, wordText: item.word.text)
+                    let entry = ReviewBankEntry(wordId: answer.wordId, wordText: answer.wordText)
                     modelContext.insert(entry)
                 }
             }
         }
-    }
 
-    // MARK: - Helpers
-
-    private func isCorrect(_ typed: String, expected: String) -> Bool {
-        typed.normalizedForDictation == expected.normalizedForDictation
+        return result
     }
 }

@@ -50,7 +50,7 @@ struct PaperSessionView: View {
                 processingContent
             case .results:
                 ResultsView(
-                    answers: answers,
+                    sessionAnswers: answers,
                     title: title,
                     listId: listId,
                     isRevisit: isRevisit,
