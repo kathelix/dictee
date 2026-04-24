@@ -29,7 +29,7 @@ struct SessionView: View {
         Group {
             if showResults {
                 ResultsView(
-                    answers: collectedAnswers,
+                    sessionAnswers: collectedAnswers,
                     title: title,
                     listId: listId,
                     isRevisit: isRevisit,

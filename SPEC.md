@@ -32,9 +32,9 @@ A French dictation learning app for pupils, targeting iPhone and iPad. The teach
 
 | Score | Ring colour |
 |---|---|
-| > 80% correct | Green |
-| 50 – 80% correct | Amber |
-| < 50% correct | Red |
+| ≥ 90% correct | Green |
+| ≥ 75% correct | Amber |
+| < 75% correct | Red |
 | Never practised | Gray (0% fill) |
 
 - The arc fill corresponds to the percentage (e.g. 75% correct → ring three-quarters full)
@@ -46,9 +46,9 @@ A French dictation learning app for pupils, targeting iPhone and iPad. The teach
 
 | OCR confidence | Ring colour |
 |---|---|
-| > 80% | Green (neat / legible) |
-| 50 – 80% | Amber |
-| < 50% | Red (hard to read) |
+| ≥ 90% | Green (neat / legible) |
+| ≥ 75% | Amber |
+| < 75% | Red (hard to read) |
 
 - Intended for teachers to assess handwriting neatness alongside spelling correctness
 - Not shown for lists that have only been practised in typed mode
@@ -108,8 +108,8 @@ Triggered from Home → tap a word list card → **"Type your answers"**.
 | Ratio | Colour |
 |---|---|
 | ≥ 90% correct | Green |
-| ≥ 60% correct | Orange |
-| < 60% correct | Red |
+| ≥ 75% correct | Amber |
+| < 75% correct | Red |
 
 - Contextual label beneath the score:
 

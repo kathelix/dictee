@@ -7,14 +7,16 @@ final class Answer {
     var wordId: UUID
     var wordText: String
     var typed: String
-    var correct: Bool
     var session: SessionResult?
+
+    /// Derived from stored fields — single source of truth for correctness.
+    var correct: Bool {
+        typed.normalizedForDictation == wordText.normalizedForDictation
+    }
 
     init(wordId: UUID, wordText: String, typed: String) {
         self.wordId = wordId
         self.wordText = wordText
         self.typed = typed
-        // Case-insensitive, accent-sensitive; apostrophe variants are normalised
-        self.correct = typed.normalizedForDictation == wordText.normalizedForDictation
     }
 }

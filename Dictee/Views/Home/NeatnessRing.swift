@@ -8,15 +8,15 @@ import SwiftUI
 ///
 /// | Score      | Ring colour |
 /// |------------|-------------|
-/// | > 80%      | Green       |
-/// | 50 – 80%   | Amber       |
-/// | < 50%      | Red         |
+/// | ≥ 90%      | Green       |
+/// | ≥ 75%      | Amber       |
+/// | < 75%      | Red         |
 struct NeatnessRing: View {
     let percentage: Double  // 0–1
 
     private var ringColor: Color {
-        if percentage > 0.80 { return .green }
-        if percentage >= 0.50 { return .orange }
+        if percentage >= 0.90 { return .green }
+        if percentage >= 0.75 { return .orange }
         return .red
     }
 
@@ -47,8 +47,8 @@ struct NeatnessRing: View {
 #Preview {
     HStack(spacing: 20) {
         NeatnessRing(percentage: 0.92)  // green
-        NeatnessRing(percentage: 0.65)  // amber
-        NeatnessRing(percentage: 0.30)  // red
+        NeatnessRing(percentage: 0.80)  // amber
+        NeatnessRing(percentage: 0.50)  // red
     }
     .padding()
     .background(Color(.systemGroupedBackground))
