@@ -7,7 +7,7 @@ Project-specific rules and context for Claude Code. Read this before touching an
 ## Project overview
 
 **Dictee** is a French dictation learning app for iPhone and iPad (iOS 17+).
-Pupils photograph a teacher's paper word list, then practise spelling through typed dictation sessions.
+Pupils photograph a teacher's paper word list, then practise spelling through typed or paper dictation sessions.
 
 Full spec: [`SPEC.md`](SPEC.md) — keep it in sync whenever behaviour changes (see rule below).
 
@@ -27,7 +27,7 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer \
 xcodebuild build \
   -scheme Dictee \
   -sdk iphonesimulator \
-  -destination 'platform=iOS Simulator,name=iPhone 16' \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
   -configuration Debug \
   CODE_SIGN_IDENTITY="" \
   CODE_SIGNING_REQUIRED=NO \
@@ -100,7 +100,7 @@ bar button groups (removes the QuickType bar).
 | `Word` | id, text, list (WordList?) |
 | `ReviewBankEntry` | id, wordId, wordText *(denormalized — survives list deletion)*, addedAt, missCount |
 | `SessionResult` | id, listId (UUID?), listName, date, isRevisit, isPaperSession, answers[] |
-| `Answer` | id, wordId, wordText, typed, correct, session |
+| `Answer` | id, wordId, wordText, typed, session — `correct` is **computed** (`typed.normalizedForDictation == wordText.normalizedForDictation`), not stored |
 
 `ReviewBankEntry.wordText` is denormalized intentionally — entries must survive
 if the parent `WordList` is deleted. Do not replace it with a foreign key.
@@ -146,3 +146,25 @@ GitHub Actions workflow: `.github/workflows/ci.yml`
 - Runner: `macos-15`, Xcode 16
 - Steps: checkout → install xcodegen → `xcodegen generate` → build for simulator (Debug)
 - Signing disabled via `CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO`
+
+---
+
+## Working directory
+
+Always work directly in `/Users/Shared/git/github.com/dictee`. Create branches here with `git checkout -b`. Do **not** use Claude worktree isolation — the user works in the same directory and worktrees create unnecessary overhead.
+
+---
+
+## Spec review guidance
+
+When checking for spec drift, **read files directly** (Glob + Read) rather than delegating to a subagent. The codebase is small enough that a direct pass is faster and more accurate than a subagent round-trip.
+
+Always build before committing to catch compile errors introduced by the change.
+
+---
+
+## Known patterns & caveats
+
+**`ResultsView.savedSession`** — the view renders one frame with `savedSession = nil` (showing 0/0) before `.onAppear` fires and populates it. In practice SwiftUI batches this into the first layout pass and no flash is visible, but if `ResultsView` is ever embedded inside a lazy container this could surface. A loading guard or a `ProgressView` until `savedSession != nil` would make it bulletproof.
+
+**`Answer.correct` cannot be used in `#Predicate`** — because it is a computed property, SwiftData cannot filter on it in a query predicate. All correctness aggregation must happen in Swift (e.g. `answers.filter(\.correct)`), not in a fetch request. `SessionResult.correctCount` already does this correctly.
