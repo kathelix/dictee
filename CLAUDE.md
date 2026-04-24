@@ -172,6 +172,26 @@ Always build before committing to catch compile errors introduced by the change.
 
 ---
 
+## Colour coding — unified thresholds
+
+All score and neatness rings use the same three bands:
+
+| Score | Colour |
+|---|---|
+| ≥ 90% | Green |
+| ≥ 75% | Amber |
+| < 75% | Red |
+
+These thresholds appear in `ScoreRing.swift`, `NeatnessRing.swift`, and `ResultsView` (`scoreColor` / `neatnessColor`). If you change one, change all three and update SPEC.md in the same commit.
+
+---
+
+## TODO.md
+
+`TODO.md` tracks outstanding tasks. **When a task is complete, remove it from the file immediately** — do not leave resolved items as comments or strikethrough. An empty `TODO.md` is valid and expected.
+
+---
+
 ## Known patterns & caveats
 
 **`ResultsView.savedSession`** — the view renders one frame with `savedSession = nil` (showing 0/0) before `.onAppear` fires and populates it. In practice SwiftUI batches this into the first layout pass and no flash is visible, but if `ResultsView` is ever embedded inside a lazy container this could surface. A loading guard or a `ProgressView` until `savedSession != nil` would make it bulletproof.
