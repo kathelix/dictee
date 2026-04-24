@@ -39,6 +39,15 @@ xcodebuild build \
 > xcodegen strips the team on every regeneration unless it is declared there.
 > Never remove this line.
 
+### Physical test devices
+
+| Name | Model | Identifier |
+|---|---|---|
+| Black Knight | iPhone 14 Pro Max | `264DA990-A302-5C43-8D51-91BB11C7A1E4` |
+| iPad | iPad Pro 13-inch (M4) | `15DE8DD5-0A56-59CF-A217-143502CF0A9B` |
+
+List with: `xcrun devicectl list devices`
+
 ---
 
 ## Architecture & framework rules
