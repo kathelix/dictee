@@ -5,7 +5,7 @@ For architecture, design, and technical planning discussions in this ChatGPT Pro
 ## Source of truth
 
 Use the GitHub repository below as the canonical source of truth:
-- Repository: `IvanBoyko/dictee`
+- Repository: `Kathelix/dictee`
 
 Do not treat uploaded Project Sources as authoritative if they conflict with the current GitHub repo contents.
 If GitHub content and any older uploaded file differ, prefer the GitHub version.
