@@ -53,6 +53,62 @@ device names and identifiers in `CLAUDE.local.md` for quick reference.
 
 ---
 
+## Tests
+
+Unit tests live in `DicteeTests/`. The test target uses **XCTest** (Swift
+Testing is fine for new test files if parameterized cases would help).
+
+```bash
+# Run tests on simulator. Pick any iOS 17+ simulator from
+# `xcrun simctl list devices available`.
+DEVELOPER_DIR="$(xcode-select -p)" \
+xcodebuild test \
+  -scheme Dictee \
+  -sdk iphonesimulator \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+  -configuration Debug \
+  CODE_SIGN_IDENTITY="" \
+  CODE_SIGNING_REQUIRED=NO \
+  CODE_SIGNING_ALLOWED=NO
+```
+
+CI runs the same target after the build step on every PR.
+
+Prefer pure helpers/value types for code that warrants tests
+(`PaperSessionMatcher` is the model — no SwiftUI, no Vision, no SwiftData;
+just strings in, strings out). Logic embedded in views is much harder to
+exercise.
+
+---
+
+## Workflow
+
+### Discuss design before non-trivial implementation
+
+For features bigger than a one-line fix, present the design — algorithm
+shape, where code lives, trade-offs, open questions — and wait for
+confirmation before writing implementation code. Push back when the request
+looks wrong; discussion produces better software than silent execution.
+
+### TDD: failing-baseline commit, then implementation
+
+For changes with testable behaviour, prefer this two-commit workflow:
+
+1. Write tests against a stub that returns naive output. Run locally and
+   confirm the failure pattern matches the spec — no-op cases pass, the
+   cases describing the new behaviour fail.
+2. Commit and push that failing-baseline state. Open a draft PR so CI
+   confirms the same failures.
+3. Implement the change in a separate commit. Tests pass locally and on CI.
+4. **Rebase-and-merge** (not squash). The two-commit history is intentional:
+   it documents intent and supports a tester/developer split of work.
+
+The intermediate failing-tests commit on `main` is an accepted trade-off,
+not a bug. Skip this workflow for trivial changes (typo fixes, single-line
+behaviour tweaks) where the ceremony outweighs the value.
+
+---
+
 ## Architecture & framework rules
 
 | Topic | Rule |

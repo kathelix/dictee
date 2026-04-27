@@ -2,7 +2,20 @@
   "permissions": {
     "allow": [
       "Bash(git *)",
-      "Read(/Users/Shared/git/github.com/dictee/*)"
+      "Read(/Users/Shared/git/github.com/dictee/*)",
+      "Bash(xcodegen generate*)",
+      "Bash(xcodebuild build *)",
+      "Bash(xcodebuild test *)",
+      "Bash(xcrun simctl list*)",
+      "Bash(xcrun devicectl list*)",
+      "Bash(gh run list*)",
+      "Bash(gh run view*)",
+      "Bash(gh run watch*)",
+      "Bash(gh pr view*)",
+      "Bash(gh pr list*)",
+      "Bash(gh pr checks*)",
+      "Bash(gh pr diff*)",
+      "Bash(gh repo view*)"
     ]
   }
 }
