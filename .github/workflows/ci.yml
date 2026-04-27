@@ -40,6 +40,19 @@ jobs:
             ASSETCATALOG_COMPILER_OPTIMIZATION=nothing \
             COMPILER_INDEX_STORE_ENABLE=NO
 
+      - name: Test (iOS Simulator, Debug)
+        run: |
+          xcodebuild test \
+            -scheme Dictee \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=latest' \
+            -configuration Debug \
+            -derivedDataPath build \
+            ONLY_ACTIVE_ARCH=YES \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+
       - name: Dump actool errors on failure
         if: failure()
         run: |

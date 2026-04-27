@@ -38,3 +38,18 @@ targets:
           - UIInterfaceOrientationPortraitUpsideDown
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
+
+  DicteeTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: DicteeTests
+    dependencies:
+      - target: Dictee
+    settings:
+      base:
+        SWIFT_VERSION: "5.9"
+        DEVELOPMENT_TEAM: 93SH436384
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.dictee.app.tests
