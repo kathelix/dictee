@@ -20,10 +20,15 @@ struct ResultsView: View {
     @State private var removedFromBank: Int = 0
     @State private var starsEarnedThisSession: Int = 0
     @State private var totalStars: Int = 0
+    /// Ordered snapshot of answers in dictation order. SwiftData `@Relationship`
+    /// arrays are unordered and may reshuffle when the context autosaves and
+    /// reloads the relationship — capturing the order locally keeps the display
+    /// stable across re-renders.
+    @State private var orderedAnswers: [Answer] = []
 
-    private var correctAnswers: [Answer] { savedSession?.answers.filter(\.correct) ?? [] }
-    private var incorrectAnswers: [Answer] { savedSession?.answers.filter { !$0.correct } ?? [] }
-    private var totalCount: Int { savedSession?.answers.count ?? 0 }
+    private var correctAnswers: [Answer] { orderedAnswers.filter(\.correct) }
+    private var incorrectAnswers: [Answer] { orderedAnswers.filter { !$0.correct } }
+    private var totalCount: Int { orderedAnswers.count }
 
     var body: some View {
         NavigationStack {
@@ -247,6 +252,7 @@ struct ResultsView: View {
         )
         totalStars = DictationRewardService.totalStars(in: modelContext)
 
+        orderedAnswers = builtAnswers
         return result
     }
 }
