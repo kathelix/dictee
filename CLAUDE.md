@@ -14,7 +14,7 @@ your own if it's missing — Claude Code loads both files when present.
 **Dictee** is a French dictation learning app for iPhone and iPad (iOS 17+).
 Pupils photograph a teacher's paper word list, then practise spelling through typed or paper dictation sessions.
 
-Full spec: [`SPEC.md`](SPEC.md) — keep it in sync whenever behaviour changes (see rule below).
+Full spec: [`docs/SPEC.md`](docs/SPEC.md) — keep it in sync whenever behaviour changes (see rule below).
 
 ---
 
@@ -198,8 +198,8 @@ Required entries in `Contents.json`:
 
 ## Spec sync rule
 
-**SPEC.md must be updated in the same commit as any code change that alters
-user-visible behaviour.**
+**`docs/SPEC.md` must be updated in the same commit as any code change that
+alters user-visible behaviour.**
 
 This includes: new screens, changed flows, new settings, modified scoring
 logic, renamed UI elements. If you are uncertain whether a change affects the
@@ -235,13 +235,13 @@ All score and neatness rings use the same three bands:
 | ≥ 75% | Amber |
 | < 75% | Red |
 
-These thresholds appear in `ScoreRing.swift`, `NeatnessRing.swift`, and `ResultsView` (`scoreColor` / `neatnessColor`). If you change one, change all three and update SPEC.md in the same commit.
+These thresholds appear in `ScoreRing.swift`, `NeatnessRing.swift`, and `ResultsView` (`scoreColor` / `neatnessColor`). If you change one, change all three and update `docs/SPEC.md` in the same commit.
 
 ---
 
-## TODO.md
+## docs/TODO.md
 
-`TODO.md` tracks outstanding tasks. **When a task is complete, remove it from the file immediately** — do not leave resolved items as comments or strikethrough. An empty `TODO.md` is valid and expected.
+`docs/TODO.md` tracks outstanding tasks. **When a task is complete, remove it from the file immediately** — do not leave resolved items as comments or strikethrough. An empty `docs/TODO.md` is valid and expected.
 
 ---
 
