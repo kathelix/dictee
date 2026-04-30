@@ -18,15 +18,24 @@ struct ResultsView: View {
     // Populated once on first appear; drives all display
     @State private var savedSession: SessionResult? = nil
     @State private var removedFromBank: Int = 0
+    @State private var starsEarnedThisSession: Int = 0
+    @State private var totalStars: Int = 0
+    /// Ordered snapshot of answers in dictation order. SwiftData `@Relationship`
+    /// arrays are unordered and may reshuffle when the context autosaves and
+    /// reloads the relationship — capturing the order locally keeps the display
+    /// stable across re-renders.
+    @State private var orderedAnswers: [Answer] = []
 
-    private var correctAnswers: [Answer] { savedSession?.answers.filter(\.correct) ?? [] }
-    private var incorrectAnswers: [Answer] { savedSession?.answers.filter { !$0.correct } ?? [] }
-    private var totalCount: Int { savedSession?.answers.count ?? 0 }
+    private var correctAnswers: [Answer] { orderedAnswers.filter(\.correct) }
+    private var incorrectAnswers: [Answer] { orderedAnswers.filter { !$0.correct } }
+    private var totalCount: Int { orderedAnswers.count }
 
     var body: some View {
         NavigationStack {
             List {
                 scoreHeader
+
+                rewardSection
 
                 if !correctAnswers.isEmpty {
                     Section("Correct ✓") {
@@ -138,6 +147,58 @@ struct ResultsView: View {
         return .red
     }
 
+    // MARK: - Reward block
+
+    private var rewardSection: some View {
+        Section("Stars") {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 8) {
+                    Text("⭐")
+                        .font(.title3)
+                    Text("+\(starsEarnedThisSession) star\(starsEarnedThisSession == 1 ? "" : "s") earned")
+                        .fontWeight(.semibold)
+                }
+                .accessibilityElement(children: .combine)
+
+                HStack {
+                    Text("Total stars")
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Text("\(totalStars)")
+                        .fontWeight(.semibold)
+                        .monospacedDigit()
+                }
+
+                Divider()
+
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(spacing: 8) {
+                        Text("🎁")
+                        Text("Secret reward")
+                            .fontWeight(.semibold)
+                        Image(systemName: "lock.fill")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .accessibilityLabel("locked")
+                    }
+
+                    Text("\(min(totalStars, RewardRule.secretRewardThreshold)) / \(RewardRule.secretRewardThreshold) stars")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+
+                    ProgressView(
+                        value: RewardRule.progressFraction(totalStars: totalStars)
+                    )
+                    .tint(.yellow)
+                    .accessibilityLabel(
+                        "Reward progress: \(totalStars) of \(RewardRule.secretRewardThreshold) stars"
+                    )
+                }
+            }
+            .padding(.vertical, 4)
+        }
+    }
+
     // MARK: - Persistence
 
     @discardableResult
@@ -181,6 +242,17 @@ struct ResultsView: View {
             }
         }
 
+        // Award stars for this dictation. Idempotent against result.id so a
+        // re-render of the same SessionResult cannot grant stars twice.
+        let correctCount = builtAnswers.filter(\.correct).count
+        starsEarnedThisSession = DictationRewardService.award(
+            sessionId: result.id,
+            correctCount: correctCount,
+            in: modelContext
+        )
+        totalStars = DictationRewardService.totalStars(in: modelContext)
+
+        orderedAnswers = builtAnswers
         return result
     }
 }

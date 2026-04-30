@@ -5,12 +5,17 @@ struct HomeView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \WordList.createdAt, order: .reverse) private var lists: [WordList]
     @Query private var reviewBank: [ReviewBankEntry]
+    @Query private var rewardTransactions: [RewardTransaction]
     /// All practice (non-revisit) sessions, newest first.
     @Query(
         filter: #Predicate<SessionResult> { !$0.isRevisit },
         sort: \SessionResult.date,
         order: .reverse
     ) private var practiceSessions: [SessionResult]
+
+    private var totalStars: Int {
+        rewardTransactions.reduce(0) { $0 + $1.starsEarned }
+    }
 
     @State private var showImport = false
     @State private var showRevisit = false
@@ -38,6 +43,11 @@ struct HomeView: View {
                         showSettings = true
                     } label: {
                         Image(systemName: "gearshape")
+                    }
+                }
+                ToolbarItem(placement: .principal) {
+                    if totalStars > 0 {
+                        StarBalanceBadge(totalStars: totalStars)
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {

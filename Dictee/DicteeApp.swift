@@ -13,6 +13,7 @@ struct DicteeApp: App {
             ReviewBankEntry.self,
             SessionResult.self,
             Answer.self,
+            RewardTransaction.self,
         ])
     }
 }

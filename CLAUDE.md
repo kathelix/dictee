@@ -107,6 +107,16 @@ The intermediate failing-tests commit on `main` is an accepted trade-off,
 not a bug. Skip this workflow for trivial changes (typo fixes, single-line
 behaviour tweaks) where the ceremony outweighs the value.
 
+### Verify on simulator before marking the PR ready
+
+Unit tests verify code correctness; only a simulator smoke test verifies
+feature correctness. For any change touching UI, build the app and tap
+through the affected flow at least once before flipping a draft PR to
+ready. Watch for state/order regressions that unit tests cannot catch
+(SwiftData autosave-induced re-renders, animation glitches, layout
+breakage). If you genuinely cannot run on a simulator, say so explicitly
+in the PR rather than implying a smoke test was performed.
+
 ---
 
 ## Architecture & framework rules
@@ -117,7 +127,8 @@ behaviour tweaks) where the ceremony outweighs the value.
 | Instantiating observable services | `@State private var speech = SpeechService()` — not `@StateObject`. |
 | SwiftData queries | `@Query` only. Never call `modelContext.fetch` manually for view data. |
 | N+1 queries | Fetch the full collection once in the parent view and compute per-item values with a helper (see `HomeView.lastScore(for:)`). Do **not** issue a separate `@Query` per list card. |
-| Concurrency | Service classes are `@MainActor` by default. Delegate callbacks that arrive off-main must dispatch back with `Task { @MainActor in ... }`. |
+| Concurrency | Stateful service *classes* (e.g. `SpeechService`) are `@MainActor` by default. Stateless service *enums* (e.g. `DictationRewardService`, `OCRService`) put `@MainActor` only on methods that touch main-actor APIs (`ModelContext`, UI state) — pure helpers stay nonisolated so any context can call them without `await`. Delegate callbacks that arrive off-main must dispatch back with `Task { @MainActor in ... }`. |
+| SwiftData `@Relationship` order | `@Relationship` arrays are **unordered**. SwiftData can reload them in arbitrary order after an autosave, causing visible reshuffling between renders. When a view's display depends on order (e.g. dictation order on the results screen), snapshot the references into a `@State` array once during the write that builds them — see `ResultsView.orderedAnswers`. Never rely on relationship-array order across re-renders. |
 
 ---
 
@@ -169,9 +180,14 @@ bar button groups (removes the QuickType bar).
 | `ReviewBankEntry` | id, wordId, wordText *(denormalized — survives list deletion)*, addedAt, missCount |
 | `SessionResult` | id, listId (UUID?), listName, date, isRevisit, isPaperSession, answers[] |
 | `Answer` | id, wordId, wordText, typed, session — `correct` is **computed** (`typed.normalizedForDictation == wordText.normalizedForDictation`), not stored |
+| `RewardTransaction` | id, dictationSessionId (= `SessionResult.id`), starsEarned, reason (`"correct_words"` in Slice 1), createdAt — the total star balance is *derived* by summing across rows; idempotency is keyed on `dictationSessionId` |
 
 `ReviewBankEntry.wordText` is denormalized intentionally — entries must survive
 if the parent `WordList` is deleted. Do not replace it with a foreign key.
+
+`RewardTransaction` has no SwiftData relationship to `SessionResult` — they
+are linked by id only, so a transaction survives if its source session is
+ever deleted. Do not introduce a `@Relationship` between them.
 
 ---
 
