@@ -6,13 +6,15 @@ import UIKit
 ///   - Autocorrection
 ///   - Spell-check underlining
 ///   - QuickType predictive-text suggestion bar
+///   - Voice dictation results (the system mic key cannot be hidden, but
+///     any phrase it recognises is swallowed before reaching the field)
 struct DictationTextField: UIViewRepresentable {
     let placeholder: String
     @Binding var text: String
     var onSubmit: (() -> Void)? = nil
 
     func makeUIView(context: Context) -> UITextField {
-        let field = UITextField()
+        let field = NoDictationTextField()
         field.delegate = context.coordinator
         field.placeholder = placeholder
         field.textAlignment = .center
@@ -70,5 +72,20 @@ struct DictationTextField: UIViewRepresentable {
             onSubmit?()
             return false
         }
+    }
+}
+
+// MARK: - Dictation-resistant UITextField
+
+/// A `UITextField` that ignores voice-dictation input.
+///
+/// The microphone key on the system keyboard cannot be hidden by an app — its
+/// visibility is governed by *Settings → General → Keyboard → Enable
+/// Dictation*. To stop pupils cheating by speaking the word, we override the
+/// dictation insertion hook so any recognised phrase is silently dropped.
+/// The mic key still appears and can be tapped, but produces no text.
+private final class NoDictationTextField: UITextField {
+    override func insertDictationResult(_ dictationResult: [UIDictationPhrase]) {
+        // Intentionally empty: pupils must type, not speak.
     }
 }

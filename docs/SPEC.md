@@ -240,7 +240,7 @@ A small, local-first reward system intended to motivate continued practice. **No
 
 **Audio is TTS, French locale.** No network dependency; uses `AVSpeechSynthesizer` with `fr-FR` voice at a slightly reduced rate for clarity.
 
-**Keyboard assistance is fully disabled during typed sessions.** Autocorrection, spell-check underlining, smart quotes, smart dashes, smart insert/delete, and the QuickType suggestion bar are all suppressed via a custom `UITextField` wrapper (`DictationTextField`). The pupil must recall and type every character entirely from memory.
+**Keyboard assistance is fully disabled during typed sessions.** Autocorrection, spell-check underlining, smart quotes, smart dashes, smart insert/delete, and the QuickType suggestion bar are all suppressed via a custom `UITextField` wrapper (`DictationTextField`). Voice dictation is also defeated: the system microphone key cannot be hidden by an app, but the field overrides `insertDictationResult(_:)` to drop any recognised phrase, so tapping the mic and speaking does nothing. The pupil must recall and type every character entirely from memory.
 
 **Apostrophe variants are normalized before comparison.** iOS Smart Punctuation substitutes a curly right single quotation mark (U+2019) when the pupil types an apostrophe. The comparison folds U+2019, U+2018, and U+02BC to a plain straight apostrophe (U+0027) on both sides before comparing, so words like *l'enfance* are never incorrectly marked wrong due to apostrophe style.
 
