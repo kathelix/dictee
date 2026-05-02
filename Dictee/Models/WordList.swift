@@ -15,9 +15,8 @@ final class WordList {
     @Relationship(deleteRule: .cascade, inverse: \Word.list)
     var words: [Word] = []
 
-    init(name: String, photoData: Data? = nil, handwritingNeatness: Double? = nil) {
+    init(name: String, photoData: Data? = nil) {
         self.name = name
         self.photoData = photoData
-        self.handwritingNeatness = handwritingNeatness
     }
 }

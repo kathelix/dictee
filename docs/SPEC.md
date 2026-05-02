@@ -98,7 +98,7 @@ Triggered from Home → tap a word list card → **"Type your answers"**.
    - Shows a large speaker button to replay at any time
    - Shows a progress bar and counter (e.g. "3 of 17")
    - Presents a text input field (keyboard assistance fully disabled — see Design Decisions)
-3. Pupil types the spelling and taps **Next** (or **Finish** on the last word, or presses Return)
+3. Pupil types the spelling and taps **Next** (or **Finish** on the last word, or presses **Done** on the keyboard)
 4. The app records the answer silently — **no immediate right/wrong feedback**
 5. This continues until all words are exhausted
 
@@ -147,7 +147,7 @@ The pupil hears every word, writes answers on a sheet of paper, then photographs
    - **No text input** — the pupil writes on paper
    - Pupil taps **Next Word** to advance, or **Done — Take Photo** on the last word
 4. **Capture phase:** App prompts the pupil to photograph their written answer sheet
-5. **Processing:** On-device OCR (Vision framework, handwriting mode — language correction disabled) recognises the words
+5. **Processing:** On-device OCR (Vision framework, French locale, language correction disabled so the recogniser relies on raw stroke features rather than biasing toward dictionary words) recognises the words
 6. **Matching:** Recognised words are matched positionally to the dictation order (word 1 on the photo ↔ word 1 dictated, etc.). When OCR returns fewer chunks than the dictated count and a chunk contains internal whitespace, the chunk is split greedily so each piece occupies its own position — recovering pupils who forgot a comma between answers. Each recovered chunk docks the neatness score by 0.05 (legible writing, but failed formatting).
 
 **End of session — Results Screen:**
@@ -220,10 +220,10 @@ A small, local-first reward system intended to motivate continued practice. **No
 | Entity | Fields |
 |---|---|
 | `WordList` | id, name, createdAt, photoData (JPEG), lastPracticedAt, handwritingNeatness (Double?), words[] |
-| `Word` | id, text, list → WordList |
+| `Word` | id, text, list (WordList?) |
 | `ReviewBankEntry` | id, wordId, wordText (denormalized), addedAt, missCount |
-| `SessionResult` | id, listId, listName, date, isRevisit, isPaperSession, answers[] |
-| `Answer` | id, wordId, wordText (denormalized), typed, session → SessionResult — `correct` is **computed** (`typed.normalizedForDictation == wordText.normalizedForDictation`), not stored |
+| `SessionResult` | id, listId (UUID?), listName, date, isRevisit, isPaperSession, answers[] |
+| `Answer` | id, wordId, wordText (denormalized), typed, session (SessionResult?) — `correct` is **computed** (`typed.normalizedForDictation == wordText.normalizedForDictation`), not stored |
 | `RewardTransaction` | id, dictationSessionId (= `SessionResult.id`), starsEarned, reason (`"correct_words"` in Slice 1), createdAt |
 
 `WordList.handwritingNeatness` is updated after each paper session (most recent value wins), analogous to `lastPracticedAt`. It is `nil` for lists that have only been practised in typed mode.
