@@ -78,7 +78,7 @@
 		9C1241FB31451154161B3CC7 /* Word.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Word.swift; sourceTree = "<group>"; };
 		A2C5F1F3266B8C11B7552D1C /* WordListCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordListCard.swift; sourceTree = "<group>"; };
 		A30CF2FA6851BB9E96520385 /* WordListDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordListDetailView.swift; sourceTree = "<group>"; };
-		A9589F1FDACCA397900E84C3 /* Dictee.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Dictee.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A9589F1FDACCA397900E84C3 /* Dictee.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Dictee.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AC7224275A61915BDDF7C988 /* OCRReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRReviewView.swift; sourceTree = "<group>"; };
 		B5B79318408C96C69B24A985 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		BDAF2AB304CADF06719465B8 /* PaperSessionMatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaperSessionMatcher.swift; sourceTree = "<group>"; };
@@ -289,9 +289,6 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
-					7D3CB48D893FB207303E1C43 = {
-						DevelopmentTeam = 93SH436384;
-					};
 					DB972EC2F2C1FB5D3A639724 = {
 						DevelopmentTeam = 93SH436384;
 					};
@@ -433,7 +430,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 93SH436384;
+				DEVELOPMENT_TEAM = QYT76L5836;
 				INFOPLIST_FILE = Dictee/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -454,7 +451,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 93SH436384;
+				DEVELOPMENT_TEAM = QYT76L5836;
 				INFOPLIST_FILE = Dictee/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
